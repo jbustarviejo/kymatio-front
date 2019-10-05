@@ -1,17 +1,56 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div v-if="listing">
+      <ListCompanies
+        msg="Bienvenido a la gestión de compañías"
+        @eventEditCompany="editCompany"
+        @eventCreateCompany="createCompany"
+      />
+    </div>
+    <div v-else>
+      <Company
+        :company="company"
+        :new="isCreateCompany"
+        @eventListCompanies="resetListCompanies"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import ListCompanies from './components/ListCompanies.vue'
+import Company from './components/Company.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    ListCompanies,
+    Company
+  },
+  data() {
+    return {
+      listing: true,
+      company: {}
+    }
+  },
+  methods: {
+    editCompany(company){
+      this.company=company
+      this.isCreateCompany=false
+      console.log("editing", company)
+      this.listing=false
+    },
+    createCompany(){
+      this.company={}
+      this.isCreateCompany=true
+      console.log("creating")
+      this.listing=false
+    },
+    resetListCompanies(){
+      this.listing = true
+      this.company = {}
+    }
   }
 }
 </script>
@@ -24,5 +63,8 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+#app img {
+  height: 200px;
 }
 </style>
