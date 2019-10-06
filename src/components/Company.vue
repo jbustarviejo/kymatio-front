@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container">
+  <div class="main-container" v-if="!editDepartament">
     <form v-on:submit.prevent="" class="main-form" action="/action_page.php">
       <label for="cname">Nombre</label>
       <input type="text" id="cname" v-model="companyName"  name="name" placeholder="Nombre de la compañía">
@@ -13,11 +13,42 @@
       <button @click="save()">{{this.new ? 'Guardar' : 'Actualizar'}}</button>
       <button v-if="!this.new" class="danger" @click="deleteCompany()">Eliminar</button>
     </form>
+    <div v-if="!this.new">
+      <h1>Departamentos</h1>
+      <!-- Departament list -->
+      <div v-if="departments && departments.length>0">
+        <table>
+          <tr>
+            <th>Tipo</th>
+            <th>Nombre</th>
+            <th>Departamento superior</th>
+          </tr>
+          <tr class="at-bubble-block" v-for="department in departments">
+            <td @click="editDepartment(department)">{{department.type}}</td>
+            <td @click="editDepartment(department)">{{department.name}}</td>
+            <td @click="editDepartment(department)">{{department.group_mother_name}}</td>
+          </tr>
+        </table>
+      </div>
+      <div v-else>
+        <i>- No hay departmentos-</i>
+      </div>
+      <button @click="createDepartment()">Añadir</button>
+    </div>
   </div>
+  <Departament
+    v-else
+    :department="selectedDepartment"
+    :departments="departments"
+    :new="isNew"
+    :companyId="company.id"
+    @eventListDepartment="listDepartment"
+  />
 </template>
 
 <script>
 import axios from 'axios'
+import Departament from './Department.vue'
 
 export default {
   name: 'Company',
@@ -25,18 +56,26 @@ export default {
     company: Object,
     new: Boolean
   },
+  components: {
+    Departament
+  },
   data() {
     return {
       companyName: '',
       companyCif: '',
       companyAddress: '',
-      companies: []
+      companies: [],
+      departments: [],
+      editDepartament: false,
+      selectedDepartment: []
     }
   },
   mounted () {
+    console.log("mira", this.company)
     this.companyName=this.company.name || ''
     this.companyCif=this.company.cif || ''
     this.companyAddress=this.company.address || ''
+    this.refreshDepartments()
   },
   methods: {
     save(){
@@ -52,10 +91,29 @@ export default {
         console.log("res",response)
       })
     },
+    refreshDepartments(){
+      axios
+        .get('http://prueba-kymatio.com/department/?company_id='+this.company.id)
+        .then(response => (this.departments=response.data))
+    },
     deleteCompany(){
-      axios.delete('http://prueba-kymatio.com/company/save/'+this.company.id).then(response => {
+      axios.delete('http://prueba-kymatio.com/company/delete/'+this.company.id).then(response => {
         this.$emit('eventListCompanies')
       })
+    },
+    createDepartment(){
+      this.selectedDepartment={}
+      this.editDepartament=true
+      this.isNew=true
+    },
+    editDepartment(department){
+      this.selectedDepartment=department
+      this.editDepartament=true
+      this.isNew=false
+    },
+    listDepartment(){
+      this.editDepartament=false
+      this.refreshDepartments()
     }
   }
 }
