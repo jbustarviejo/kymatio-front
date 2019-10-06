@@ -3,7 +3,6 @@
     <img alt="Vue logo" src="./assets/logo.png">
     <div v-if="listing">
       <ListCompanies
-        msg="Bienvenido a la gestión de compañías"
         @eventEditCompany="editCompany"
         @eventCreateCompany="createCompany"
       />
@@ -38,13 +37,11 @@ export default {
     editCompany(company){
       this.company=company
       this.isCreateCompany=false
-      console.log("editing", company)
       this.listing=false
     },
     createCompany(){
       this.company={}
       this.isCreateCompany=true
-      console.log("creating")
       this.listing=false
     },
     resetListCompanies(){

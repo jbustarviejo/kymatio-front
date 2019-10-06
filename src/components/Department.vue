@@ -1,16 +1,16 @@
 <template>
   <div class="main-container">
     <form v-on:submit.prevent="" class="main-form" action="/action_page.php">
-      <label for="dname">Tipo</label>
+      <label for="dname">Tipo del departamento</label>
       <input type="text" id="dtype" v-model="departmentType"  name="type" placeholder="Tipo de departmento">
 
-      <label for="dtype">Nombre</label>
+      <label for="dtype">Nombre del departamento</label>
       <input type="text" id="dname" v-model="departmentName" name="name" placeholder="Nombre del departmento">
 
       <label for="group_mother_id">Departamento superior</label>
       <select id="group_mother_id" name="group_mother_id">
         <option value="">Elige un departamento superior</option>
-        <option v-for="department_mother in departments" v-if="department.id != department_mother.id" :selected="department_mother.name == department.group_mother_id" :value="department_mother.id">{{department_mother.name}}</option>
+        <option v-for="department_mother in departments" v-if="department.id != department_mother.id" :selected="department_mother.name == department.group_mother_name" :value="department_mother.id">{{department_mother.name}}</option>
       </select>
 
       <button @click="save()">{{this.new ? 'Guardar' : 'Actualizar'}}</button>
@@ -22,21 +22,27 @@
       <div v-if="employees && employees.length>0">
         <table>
           <tr>
-            <th>Tipo</th>
-            <th>Nombre</th>
-            <th>Empleado superior</th>
+            <th>Nombre de empleado</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Factor de riesgo</th>
+            <th>Superior</th>
           </tr>
-          <tr class="at-bubble-block" v-for="employee in employees">
-            <td @click="editEmployee(employee)">{{employee.name}}</td>
-            <td @click="editEmployee(employee)">{{employee.type}}</td>
-            <td @click="editEmployee(employee)">{{employee.group_mother_name}}</td>
+          <tr @click="editEmployee(employee)" class="at-bubble-block" v-for="employee in employees">
+            <td >{{employee.name}}</td>
+            <td>{{employee.surname}}</td>
+            <td>{{employee.email}}</td>
+            <td>{{employee.address}}</td>
+            <td>{{employee.risk}}</td>
+            <td>{{employee.employee_boss_name}}</td>
           </tr>
         </table>
       </div>
       <div v-else>
         <i>- No hay empleados-</i>
       </div>
-      <button v-if="!this.new" @click="save()">Añadir</button>
+      <!-- <button v-if="!this.new" @click="save()">Añadir</button> -->
     </div>
   </div>
 </template>
@@ -63,14 +69,12 @@ export default {
   mounted () {
     this.departmentName=this.department.name || ''
     this.departmentType=this.department.type || ''
-    // this.departmentAddress=this.department.address || ''
     axios
-      .get('http://prueba-kymatio.com/department/?department_id='+this.department.id)
+      .get('http://prueba-kymatio.com/employee/'+(this.new ? '' : '?department_id='+this.department.id))
       .then(response => (this.employees=response.data))
   },
   methods: {
     save(){
-      console.log("mira nombre", this.departmentName);
       if (!this.departmentName){
         alert("Introduce nombre del departmento")
         return
@@ -79,7 +83,6 @@ export default {
       var data = new FormData(form);
       axios.post('http://prueba-kymatio.com/department/save/'+(this.new? '?company_id='+this.companyId:this.department.id), data).then(response => {
         this.$emit('eventListDepartment')
-        console.log("res",response)
       })
     },
     deleteDepartment(){

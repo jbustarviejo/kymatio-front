@@ -1,6 +1,6 @@
 <template>
-<div class="main-container">
-    <h1>{{ msg }}</h1>
+  <div class="main-container">
+    <h1>Bienvenido a la gestión de compañías</h1>
     <button @click="createCompany()">Añadir compañía</button>
     <!-- Company list -->
     <div v-if="companies && companies.length>0">
@@ -10,10 +10,10 @@
           <th>CIF</th>
           <th>Dirección</th>
         </tr>
-        <tr class="at-bubble-block" v-for="company in companies">
-          <td @click="editCompany(company)">{{company.name}}</td>
-          <td @click="editCompany(company)">{{company.cif}}</td>
-          <td @click="editCompany(company)">{{company.address}}</td>
+        <tr @click="editCompany(company)" class="at-bubble-block" v-for="company in companies">
+          <td>{{company.name}}</td>
+          <td>{{company.cif}}</td>
+          <td>{{company.address}}</td>
         </tr>
       </table>
     </div>
@@ -30,7 +30,6 @@ import axios from 'axios'
 export default {
   name: 'ListCompanies',
   props: {
-    msg: String
   },
   data() {
     return {

@@ -1,49 +1,53 @@
 <template>
-  <div class="main-container" v-if="!editDepartament">
-    <form v-on:submit.prevent="" class="main-form" action="/action_page.php">
-      <label for="cname">Nombre</label>
-      <input type="text" id="cname" v-model="companyName"  name="name" placeholder="Nombre de la compañía">
+  <div>
+    <div class="main-container" v-if="!editDepartament">
+      <form v-on:submit.prevent="" class="main-form" action="/action_page.php">
+        <label for="cname">Nombre de la compañía</label>
+        <input type="text" id="cname" v-model="companyName"  name="name" placeholder="Nombre de la compañía">
 
-      <label for="ccif">CIF</label>
-      <input type="text" id="ccif" v-model="companyCif" name="cif" placeholder="CIF de la empresa">
+        <label for="ccif">CIF</label>
+        <input type="text" id="ccif" v-model="companyCif" name="cif" placeholder="CIF de la empresa">
 
-      <label for="caddress">Dirección</label>
-      <input type="text" id="caddress" v-model="companyAddress" name="address" placeholder="Dirección de la empresa">
+        <label for="caddress">Dirección</label>
+        <input type="text" id="caddress" v-model="companyAddress" name="address" placeholder="Dirección de la empresa">
 
-      <button @click="save()">{{this.new ? 'Guardar' : 'Actualizar'}}</button>
-      <button v-if="!this.new" class="danger" @click="deleteCompany()">Eliminar</button>
-    </form>
-    <div v-if="!this.new">
-      <h1>Departamentos</h1>
-      <!-- Departament list -->
-      <div v-if="departments && departments.length>0">
-        <table>
-          <tr>
-            <th>Tipo</th>
-            <th>Nombre</th>
-            <th>Departamento superior</th>
-          </tr>
-          <tr class="at-bubble-block" v-for="department in departments">
-            <td @click="editDepartment(department)">{{department.type}}</td>
-            <td @click="editDepartment(department)">{{department.name}}</td>
-            <td @click="editDepartment(department)">{{department.group_mother_name}}</td>
-          </tr>
-        </table>
+        <button @click="save()">{{this.new ? 'Guardar' : 'Actualizar'}}</button>
+        <button v-if="!this.new" class="danger" @click="deleteCompany()">Eliminar</button>
+      </form>
+      <div v-if="!this.new">
+        <h1>Departamentos</h1>
+        <!-- Departament list -->
+        <div v-if="departments && departments.length>0">
+          <table>
+            <tr>
+              <th>Tipo</th>
+              <th>Nombre</th>
+              <th>Factor de riesgo</th>
+              <th>Departamento superior</th>
+            </tr>
+            <tr @click="editDepartment(department)" class="at-bubble-block" v-for="department in departments">
+              <td>{{department.type}}</td>
+              <td>{{department.name}}</td>
+              <td>{{department.risk}}</td>
+              <td>{{department.group_mother_name}}</td>
+            </tr>
+          </table>
+        </div>
+        <div v-else>
+          <i>- No hay departmentos-</i>
+        </div>
+        <button @click="createDepartment()">Añadir</button>
       </div>
-      <div v-else>
-        <i>- No hay departmentos-</i>
-      </div>
-      <button @click="createDepartment()">Añadir</button>
     </div>
+    <Departament
+      v-else
+      :department="selectedDepartment"
+      :departments="departments"
+      :new="isNew"
+      :companyId="company.id"
+      @eventListDepartment="listDepartment"
+    />
   </div>
-  <Departament
-    v-else
-    :department="selectedDepartment"
-    :departments="departments"
-    :new="isNew"
-    :companyId="company.id"
-    @eventListDepartment="listDepartment"
-  />
 </template>
 
 <script>
@@ -71,7 +75,6 @@ export default {
     }
   },
   mounted () {
-    console.log("mira", this.company)
     this.companyName=this.company.name || ''
     this.companyCif=this.company.cif || ''
     this.companyAddress=this.company.address || ''
@@ -79,7 +82,6 @@ export default {
   },
   methods: {
     save(){
-      console.log("mira nombre", this.companyName);
       if (!this.companyName){
         alert("Introduce nombre de la compañía")
         return
@@ -88,7 +90,6 @@ export default {
       var data = new FormData(form);
       axios.post('http://prueba-kymatio.com/company/save/'+(this.new?'':this.company.id), data).then(response => {
         this.$emit('eventListCompanies')
-        console.log("res",response)
       })
     },
     refreshDepartments(){
