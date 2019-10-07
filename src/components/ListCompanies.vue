@@ -17,7 +17,7 @@
         </tr>
       </table>
     </div>
-    <div v-else>
+    <div id="empty-list" v-else>
       <i>- No hay compañías-</i>
     </div>
     <!-- End of company list -->
@@ -30,6 +30,7 @@ import axios from 'axios'
 export default {
   name: 'ListCompanies',
   props: {
+    companiesInitial: Array,
   },
   data() {
     return {
@@ -38,9 +39,13 @@ export default {
     }
   },
   mounted() {
-   axios
-     .get('http://prueba-kymatio.com/company')
-     .then(response => (this.companies=response.data))
+    if(this.companiesInitial){
+      this.companies=this.companiesInitial
+    }else{ //load from API
+      axios
+         .get('http://prueba-kymatio.com/company')
+         .then(response => (this.companies=response.data))
+    }
    },
    methods: {
      createCompany(){
